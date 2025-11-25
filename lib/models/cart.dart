@@ -1,47 +1,56 @@
-import 'sandwich.dart';
-import 'package:sandwich_shop/repositories/pricing_repository.dart';
+import 'package:flutter/foundation.dart';
+import '../models/sandwich.dart';
+import '../repositories/pricing_repository.dart';
 
-class Cart {
+class Cart with ChangeNotifier {
+  // map of Sandwich -> quantity
   final Map<Sandwich, int> _items = {};
 
   // Returns a read-only copy of the items and their quantities
   Map<Sandwich, int> get items => Map.unmodifiable(_items);
 
+  // add quantity (default 1). Prevent negative totals.
   void add(Sandwich sandwich, {int quantity = 1}) {
-    if (_items.containsKey(sandwich)) {
-      _items[sandwich] = _items[sandwich]! + quantity;
-    } else {
-      _items[sandwich] = quantity;
-    }
+    if (quantity <= 0) return;
+    final current = _items[sandwich] ?? 0;
+    _items[sandwich] = current + quantity;
+    notifyListeners();
   }
 
+  // remove quantity (default 1). If resulting quantity <= 0 remove the item entirely.
   void remove(Sandwich sandwich, {int quantity = 1}) {
-    if (_items.containsKey(sandwich)) {
-      final currentQty = _items[sandwich]!;
-      if (currentQty > quantity) {
-        _items[sandwich] = currentQty - quantity;
-      } else {
-        _items.remove(sandwich);
-      }
+    if (!_items.containsKey(sandwich) || quantity <= 0) return;
+    final current = _items[sandwich]!;
+    final newQty = current - quantity;
+    if (newQty > 0) {
+      _items[sandwich] = newQty;
+    } else {
+      _items.remove(sandwich);
+    }
+    notifyListeners();
+  }
+
+  // remove entire item
+  void removeItem(Sandwich sandwich) {
+    if (_items.remove(sandwich) != null) {
+      notifyListeners();
     }
   }
 
   void clear() {
     _items.clear();
+    notifyListeners();
   }
 
+  int getQuantity(Sandwich sandwich) => _items[sandwich] ?? 0;
+
+  // total price computed with PricingRepository
   double get totalPrice {
-    final pricingRepository = PricingRepository();
+    final repo = PricingRepository();
     double total = 0.0;
-
-    for (Sandwich sandwich in _items.keys) {
-      int quantity = _items[sandwich]!;
-      total += pricingRepository.calculatePrice(
-        quantity: quantity,
-        isFootlong: sandwich.isFootlong,
-      );
-    }
-
+    _items.forEach((sandwich, qty) {
+      total += repo.calculatePrice(quantity: qty, isFootlong: sandwich.isFootlong);
+    });
     return total;
   }
 
@@ -55,12 +64,5 @@ class Cart {
       total += _items[sandwich]!;
     }
     return total;
-  }
-
-  int getQuantity(Sandwich sandwich) {
-    if (_items.containsKey(sandwich)) {
-      return _items[sandwich]!;
-    }
-    return 0;
   }
 }
