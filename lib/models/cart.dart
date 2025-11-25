@@ -44,6 +44,27 @@ class Cart with ChangeNotifier {
 
   int getQuantity(Sandwich sandwich) => _items[sandwich] ?? 0;
 
+  // Increment quantity by 1 (UI "+" button convenience)
+  void increment(Sandwich sandwich) {
+    final current = _items[sandwich] ?? 0;
+    _items[sandwich] = current + 1;
+    notifyListeners();
+  }
+
+  // Decrement quantity by 1 (UI "–" button convenience).
+  // If resulting quantity is <= 0 the item is removed.
+  void decrement(Sandwich sandwich) {
+    if (!_items.containsKey(sandwich)) return;
+    final current = _items[sandwich]!;
+    final newQty = current - 1;
+    if (newQty > 0) {
+      _items[sandwich] = newQty;
+    } else {
+      _items.remove(sandwich);
+    }
+    notifyListeners();
+  }
+
   // total price computed with PricingRepository
   double get totalPrice {
     final repo = PricingRepository();
