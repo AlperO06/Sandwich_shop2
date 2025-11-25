@@ -4,15 +4,17 @@ import '../models/cart.dart';
 import '../models/sandwich.dart';
 
 class CartScreen extends StatelessWidget {
+  const CartScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Your Cart')),
+      appBar: AppBar(title: const Text('Your Cart')),
       body: Consumer<Cart>(
         builder: (context, cart, _) {
           final items = cart.items;
           if (items.isEmpty) {
-            return Center(child: Text('Your cart is empty'));
+            return const Center(child: Text('Your cart is empty'));
           }
           return Column(
             children: [
@@ -30,7 +32,7 @@ class CartScreen extends StatelessWidget {
                         children: [
                           // Decrease quantity
                           IconButton(
-                            icon: Icon(Icons.remove_circle_outline),
+                            icon: const Icon(Icons.remove_circle_outline),
                             onPressed: () {
                               cart.remove(sandwich, quantity: 1);
                               // If removed entirely, show feedback
@@ -46,18 +48,18 @@ class CartScreen extends StatelessWidget {
                           // Quantity display
                           Text(
                             '$qty',
-                            style: TextStyle(fontSize: 16),
+                            style: const TextStyle(fontSize: 16),
                           ),
                           // Increase quantity
                           IconButton(
-                            icon: Icon(Icons.add_circle_outline),
+                            icon: const Icon(Icons.add_circle_outline),
                             onPressed: () {
                               cart.add(sandwich, quantity: 1);
                             },
                           ),
                           // Remove entirely
                           IconButton(
-                            icon: Icon(Icons.delete_outline),
+                            icon: const Icon(Icons.delete_outline),
                             onPressed: () {
                               final name = sandwich.name;
                               cart.removeItem(sandwich);
@@ -80,9 +82,9 @@ class CartScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Total',
-                        style: Theme.of(context).textTheme.headline6),
+                        style: Theme.of(context).textTheme.titleLarge),
                     Text('\$${cart.totalPrice.toStringAsFixed(2)}',
-                        style: Theme.of(context).textTheme.headline6),
+                        style: Theme.of(context).textTheme.titleLarge),
                   ],
                 ),
               ),
