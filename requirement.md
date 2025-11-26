@@ -81,3 +81,28 @@ The app will include a simple Profile screen where users can enter/view their na
 
 ### AI Prompt (used to implement this feature)
 "Add a Profile screen to the Flutter app with text fields for name, email, and phone, a Save button that shows a snackbar (no persistence), and expose test keys for each field and the save action. Also add a widget test that enters text into the fields and verifies the snackbar appears after tapping Save."
+
+---
+
+## 6. Navigation Drawer (New)
+
+Add a reusable navigation Drawer that exposes the app's main destinations (Order, Cart, Profile, About). The drawer should be accessible from screens that include it. Where possible reuse a single Drawer widget to avoid duplicating UI code.
+
+### User Stories
+- As a user, I want a consistent navigation panel accessible from screens so I can move between Order, Cart, Profile, and About quickly.
+- As a developer, I want a single reusable Drawer widget so I don't repeat navigation code across screens.
+
+### Acceptance Criteria
+- [ ] A reusable AppDrawer widget exists and contains navigation items for Order, Cart, Profile, and About.
+- [ ] Screens include the AppDrawer via their Scaffold.drawer property (at least Cart and Profile are updated).
+- [ ] Drawer items have testable keys.
+- [ ] Tapping a drawer item navigates to the correct route.
+- [ ] Widget tests cover opening the drawer and verifying its menu items.
+
+### Notes on implementation and responsiveness
+- Drawer widgets are provided to a Scaffold via the drawer property. The AppBar will automatically show the menu icon when a drawer is present.
+- To reduce redundancy, create one AppDrawer widget and include it in screens via drawer: const AppDrawer().
+- For responsive behavior you can show a permanent NavigationRail or a side menu at wider screen widths and the Drawer for mobile widths (this can be implemented later by conditionally selecting Drawer vs a side rail based on MediaQuery width).
+
+### AI Prompt (used to implement this feature)
+"Add a reusable AppDrawer widget to the Flutter app with navigation ListTiles for Order, Cart, Profile, and About (each with test keys). Include the drawer on Cart and Profile screens. Register '/cart' and '/profile' routes in main.dart. Write widget tests that open the drawer and verify menu items exist."

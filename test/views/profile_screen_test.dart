@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sandwich_shop/views/profile_screen.dart';
+import '../../lib/views/profile_screen.dart';
 
 void main() {
-  testWidgets('Profile screen save shows snackbar', (WidgetTester tester) async {
+  testWidgets('Profile screen drawer and save snackbar', (WidgetTester tester) async {
     await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
 
     final nameField = find.byKey(const Key('profile_name_field'));
@@ -15,6 +15,20 @@ void main() {
     expect(emailField, findsOneWidget);
     expect(phoneField, findsOneWidget);
     expect(saveButton, findsOneWidget);
+
+    // Open the drawer (AppBar shows the menu icon automatically when a drawer is present)
+    await tester.tap(find.byTooltip('Open navigation menu'));
+    await tester.pumpAndSettle();
+
+    // Verify drawer items are present
+    expect(find.byKey(const Key('drawer_profile')), findsOneWidget);
+    expect(find.byKey(const Key('drawer_order')), findsOneWidget);
+    expect(find.byKey(const Key('drawer_cart')), findsOneWidget);
+    expect(find.byKey(const Key('drawer_about')), findsOneWidget);
+
+    // Close the drawer before interacting with fields
+    await tester.tap(find.byKey(const Key('drawer_profile')));
+    await tester.pumpAndSettle();
 
     await tester.enterText(nameField, 'Alice');
     await tester.enterText(emailField, 'alice@example.com');

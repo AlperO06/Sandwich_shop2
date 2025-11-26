@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/cart.dart';
+import '../widgets/app_drawer.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -8,6 +9,7 @@ class CartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(title: const Text('Your Cart')),
       body: Consumer<Cart>(
         builder: (context, cart, _) {
