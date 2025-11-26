@@ -26,9 +26,12 @@ void main() {
     expect(find.byKey(const Key('drawer_cart')), findsOneWidget);
     expect(find.byKey(const Key('drawer_about')), findsOneWidget);
 
-    // Close the drawer before interacting with fields
-    await tester.tap(find.byKey(const Key('drawer_profile')));
-    await tester.pumpAndSettle();
+    // Close the drawer by tapping the modal barrier (avoids triggering navigation)
+    final modalBarrier = find.byType(ModalBarrier);
+    if (modalBarrier.evaluate().isNotEmpty) {
+      await tester.tap(modalBarrier);
+      await tester.pumpAndSettle();
+    }
 
     await tester.enterText(nameField, 'Alice');
     await tester.enterText(emailField, 'alice@example.com');
