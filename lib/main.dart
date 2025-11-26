@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import 'package:sandwich_shop/views/about_screen.dart';
 import 'package:sandwich_shop/views/order_screen.dart';
+import 'package:sandwich_shop/views/profile_screen.dart';
 
 void main() {
   runApp(const App());
@@ -20,6 +21,8 @@ class App extends StatelessWidget {
         switch (settings.name) {
           case '/about':
             return MaterialPageRoute(builder: (_) => const AboutScreen());
+          case '/profile':
+            return MaterialPageRoute(builder: (_) => const ProfileScreen());
           default:
             return MaterialPageRoute(builder: (_) => const OrderScreen(maxQuantity: 5));
         }

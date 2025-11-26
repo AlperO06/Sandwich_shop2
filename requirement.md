@@ -61,3 +61,23 @@ The Cart Modification feature enables users of the Sandwich Shop Flutter app to 
 4. Ensure the total price and UI update immediately after any change.
 5. Provide user feedback (snackbar) for remove and update actions.
 6. Handle empty cart states with a clear message.
+
+---
+
+## 5. Profile Screen (New)
+
+The app will include a simple Profile screen where users can enter/view their name, email, and phone number. No authentication or persistence is required for now — the screen only keeps state while it's open and shows confirmation feedback when the user taps "Save".
+
+### User Stories
+- As a user, I want to enter my name, email, and phone number so I can view or edit my basic profile details.
+- As a user, I want feedback (snackbar) when I save my profile so I know the action succeeded.
+
+### Acceptance Criteria
+- [ ] A Profile screen exists with text fields for name, email, and phone.
+- [ ] Fields have testable keys/labels.
+- [ ] A "Save" button shows a snackbar confirming the save.
+- [ ] No backend/authentication/persistence is required for this exercise.
+- [ ] The screen is accessible from the app (a link will be added to the Order screen in the next exercise).
+
+### AI Prompt (used to implement this feature)
+"Add a Profile screen to the Flutter app with text fields for name, email, and phone, a Save button that shows a snackbar (no persistence), and expose test keys for each field and the save action. Also add a widget test that enters text into the fields and verifies the snackbar appears after tapping Save."
