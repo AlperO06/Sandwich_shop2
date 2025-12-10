@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/views/profile_screen.dart';
+import 'package:sandwich_shop/views/profile_screen.dart';
 
 void main() {
   testWidgets('Profile screen drawer and save snackbar', (WidgetTester tester) async {
