@@ -3,6 +3,16 @@ import 'package:provider/provider.dart';
 import 'package:sandwich_shop/models/cart.dart';
 import '../widgets/app_drawer.dart';
 
+const TextStyle heading1 = TextStyle(
+  fontSize: 28,
+  fontWeight: FontWeight.bold,
+);
+
+const TextStyle heading2 = TextStyle(
+  fontSize: 20,
+  fontWeight: FontWeight.bold,
+);
+
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 

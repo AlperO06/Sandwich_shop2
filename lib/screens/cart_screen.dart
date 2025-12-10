@@ -63,7 +63,7 @@ class CartScreen extends StatelessWidget {
                             icon: const Icon(Icons.delete_outline),
                             onPressed: () {
                               final name = sandwich.name;
-                              cart.removeItem(sandwich);
+                              cart.remove(sandwich, quantity: cart.getQuantity(sandwich));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                     content: Text('$name removed from cart')),
