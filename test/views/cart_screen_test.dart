@@ -106,9 +106,11 @@ void main() {
 
     testWidgets('displays logo in app bar', (WidgetTester tester) async {
       final Cart cart = Cart();
-      final CartScreen cartScreen = CartScreen(cart: cart);
       final MaterialApp app = MaterialApp(
-        home: cartScreen,
+        home: ChangeNotifierProvider<Cart>.value(
+          value: cart,
+          child: const CartScreen(),
+        ),
       );
 
       await tester.pumpWidget(app);
@@ -137,9 +139,11 @@ void main() {
       );
       cart.add(sandwich, quantity: 3);
 
-      final CartScreen cartScreen = CartScreen(cart: cart);
       final MaterialApp app = MaterialApp(
-        home: cartScreen,
+        home: ChangeNotifierProvider<Cart>.value(
+          value: cart,
+          child: const CartScreen(),
+        ),
       );
 
       await tester.pumpWidget(app);
