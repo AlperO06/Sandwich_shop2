@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sandwich_shop/views/app_styles.dart';
+import 'package:sandwich_shop/views/common_widgets.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -7,19 +8,20 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('About Us', style: heading1),
+      appBar: AppBarWithLogo(
+        title: 'About Us',
+        showCartIndicator: false,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Welcome to Sandwich Shop!', style: heading2),
-            SizedBox(height: 20),
+            Text('Welcome to Sandwich Shop!', style: AppStyles.heading2),
+            const SizedBox(height: 20),
             Text(
               'We are a family-owned business dedicated to serving the best sandwiches in town. ',
-              style: normalText,
+              style: AppStyles.normalText,
             ),
           ],
         ),
