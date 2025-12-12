@@ -52,7 +52,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWithLogo(
+      appBar: const AppBarWithLogo(
         title: 'Checkout',
       ),
       body: Padding(

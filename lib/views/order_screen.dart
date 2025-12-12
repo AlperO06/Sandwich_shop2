@@ -163,7 +163,7 @@ class _OrderScreenState extends State<OrderScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWithLogo(
+      appBar: const AppBarWithLogo(
         title: 'Sandwich Counter',
       ),
       body: Center(

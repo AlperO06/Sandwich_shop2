@@ -45,7 +45,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
 
     return Scaffold(
-      appBar: AppBarWithLogo(
+      appBar: const AppBarWithLogo(
         title: 'Settings',
       ),
       body: Padding(

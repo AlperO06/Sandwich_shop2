@@ -8,7 +8,7 @@ class AboutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBarWithLogo(
+      appBar: const AppBarWithLogo(
         title: 'About Us',
         showCartIndicator: false,
       ),
