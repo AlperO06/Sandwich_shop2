@@ -151,7 +151,8 @@ void main() {
 
       await tester.pumpWidget(app);
 
-      expect(find.text('Qty: 3 - £33.00'), findsOneWidget);
+      expect(find.text('Qty: 3'), findsOneWidget);
+      expect(find.text('£33.00'), findsOneWidget);
       expect(find.text('Total: £33.00'), findsOneWidget);
     });
   });
