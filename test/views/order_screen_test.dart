@@ -43,18 +43,28 @@ void main() {
   group('OrderScreen - Cart Summary', () {
     testWidgets('displays initial cart summary with zero items and price',
         (WidgetTester tester) async {
-      const OrderScreen orderScreen = OrderScreen();
-      const MaterialApp app = MaterialApp(home: orderScreen);
-      await tester.pumpWidget(app);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => Cart()),
+          ],
+          child: const MaterialApp(home: OrderScreen()),
+        ),
+      );
 
       expect(find.text('Cart: 0 items - £0.00'), findsOneWidget);
     });
 
     testWidgets('updates cart summary when items are added to cart',
         (WidgetTester tester) async {
-      const OrderScreen orderScreen = OrderScreen();
-      const MaterialApp app = MaterialApp(home: orderScreen);
-      await tester.pumpWidget(app);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => Cart()),
+          ],
+          child: const MaterialApp(home: OrderScreen()),
+        ),
+      );
 
       final Finder addToCartButtonFinder =
           find.widgetWithText(StyledButton, 'Add to Cart');
@@ -68,9 +78,14 @@ void main() {
 
     testWidgets('updates cart summary when quantity is increased before adding',
         (WidgetTester tester) async {
-      const OrderScreen orderScreen = OrderScreen();
-      const MaterialApp app = MaterialApp(home: orderScreen);
-      await tester.pumpWidget(app);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => Cart()),
+          ],
+          child: const MaterialApp(home: OrderScreen()),
+        ),
+      );
 
       final Finder addButtonFinder = find.byIcon(Icons.add);
       await tester.ensureVisible(addButtonFinder);
@@ -92,9 +107,14 @@ void main() {
 
     testWidgets('cart summary accumulates when multiple items are added',
         (WidgetTester tester) async {
-      const OrderScreen orderScreen = OrderScreen();
-      const MaterialApp app = MaterialApp(home: orderScreen);
-      await tester.pumpWidget(app);
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider(create: (_) => Cart()),
+          ],
+          child: const MaterialApp(home: OrderScreen()),
+        ),
+      );
 
       final Finder addToCartButtonFinder =
           find.widgetWithText(StyledButton, 'Add to Cart');
