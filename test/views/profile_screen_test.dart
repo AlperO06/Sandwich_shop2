@@ -1,10 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:sandwich_shop/views/profile_screen.dart';
+import 'package:sandwich_shop/models/cart.dart';
 
 void main() {
   testWidgets('Profile screen drawer and save snackbar', (WidgetTester tester) async {
-    await tester.pumpWidget(const MaterialApp(home: ProfileScreen()));
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => Cart()),
+        ],
+        child: const MaterialApp(home: ProfileScreen()),
+      ),
+    );
 
     final nameField = find.byKey(const Key('profile_name_field'));
     final emailField = find.byKey(const Key('profile_email_field'));
