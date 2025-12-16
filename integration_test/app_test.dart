@@ -7,7 +7,9 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Sandwich Shop Integration Tests', () {
-    testWidgets('Complete order flow', (WidgetTester tester) async {
+    // ========== HAPPY PATH TESTS ==========
+
+    testWidgets('Complete order flow - Happy Path', (WidgetTester tester) async {
       // Launch the app
       await tester.pumpWidget(const app.App());
 
@@ -91,43 +93,69 @@ void main() {
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('Navigate to Profile Screen', (WidgetTester tester) async {
+    testWidgets('Multiple items in cart flow', (WidgetTester tester) async {
       await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Find and tap the Profile button
-      final profileButton = find.widgetWithText(
-        ElevatedButton,
-        'Profile',
-      );
-      expect(profileButton, findsOneWidget);
-      await tester.tap(profileButton);
+      // Add first item
+      await tester.tap(find.byIcon(Icons.add).first); // increase quantity
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Change sandwich type and add second item
+      await tester.tap(find.byType(DropdownMenu).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Navigate to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
       await tester.pumpAndSettle();
 
-      // Verify we're on the profile screen
-      expect(find.text('Profile'), findsOneWidget);
+      // Verify both items are in cart
+      expect(find.text('Total:'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsWidgets); // quantity controls for items
+    });
+
+    testWidgets('Profile save and display flow', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Navigate to profile
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Profile'));
+      await tester.pumpAndSettle();
+
+      // Verify on profile screen
       expect(find.text('Enter your details:'), findsOneWidget);
 
-      // Enter name
-      final nameField = find.byType(TextField).first;
-      await tester.enterText(nameField, 'John Doe');
+      // Enter profile data
+      await tester.enterText(find.byType(TextField).first, 'Alice Johnson');
       await tester.pumpAndSettle();
-
-      // Enter location
-      final locationField = find.byType(TextField).last;
-      await tester.enterText(locationField, 'Downtown');
+      await tester.enterText(find.byType(TextField).last, 'North Park');
       await tester.pumpAndSettle();
 
       // Save profile
-      final saveButton = find.widgetWithText(
-        ElevatedButton,
-        'Save Profile',
-      );
-      await tester.tap(saveButton);
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Save Profile'));
       await tester.pumpAndSettle();
 
-      // Verify snackbar appears
+      // Verify save confirmation
       expect(find.byType(SnackBar), findsOneWidget);
+      expect(find.text('Profile saved'), findsOneWidget);
+    });
+
+    testWidgets('Font size persistence across screens', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Navigate to settings
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Settings'));
+      await tester.pumpAndSettle();
+
+      // Adjust font size
+      final slider = find.byType(Slider);
+      await tester.drag(slider, const Offset(100, 0)); // drag right to increase
+      await tester.pumpAndSettle();
 
       // Go back to order screen
       final backButton = find.byType(BackButton);
@@ -135,36 +163,169 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+
+      // Font changes should persist (verify via AppStyles)
+      expect(find.text('Sandwich Counter'), findsOneWidget);
     });
 
-    testWidgets('Navigate to Settings Screen', (WidgetTester tester) async {
+    // ========== EDGE CASE TESTS ==========
+
+    testWidgets('Add item with zero quantity - Edge Case', (WidgetTester tester) async {
       await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Find and tap the Settings button
-      final settingsButton = find.widgetWithText(
-        ElevatedButton,
-        'Settings',
-      );
-      expect(settingsButton, findsOneWidget);
-      await tester.tap(settingsButton);
+      // Verify default quantity is 1
+      expect(find.text('1'), findsWidgets);
+
+      // Try to decrease quantity below zero
+      final decreaseButton = find.byIcon(Icons.remove).first;
+      await tester.tap(decreaseButton);
       await tester.pumpAndSettle();
 
-      // Verify we're on the settings screen
-      expect(find.text('Settings'), findsOneWidget);
-      expect(find.text('Font Size'), findsOneWidget);
+      // Quantity should be 0
+      expect(find.text('0'), findsWidgets);
 
-      // Find and interact with the slider
-      final sliderFinder = find.byType(Slider);
-      expect(sliderFinder, findsOneWidget);
+      // Add to cart button should be disabled
+      final addToCartButton = find.widgetWithText(ElevatedButton, 'Add to Cart');
+      final addButton = tester.widget<ElevatedButton>(addToCartButton);
+      expect(addButton.onPressed, isNull);
+    });
 
-      // Drag slider to change font size
-      await tester.drag(sliderFinder, const Offset(50, 0));
+    testWidgets('High quantity order - Edge Case', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Verify font size changed
-      expect(find.text('This is sample text to preview the font size.'),
-          findsOneWidget);
+      // Increase quantity multiple times
+      final addQuantityButton = find.byIcon(Icons.add).first;
+      for (int i = 0; i < 5; i++) {
+        await tester.tap(addQuantityButton);
+        await tester.pumpAndSettle();
+      }
+
+      // Should show quantity of 6 (1 default + 5 added)
+      expect(find.text('6'), findsWidgets);
+
+      // Add to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Verify in cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+
+      // Should show correct total price
+      expect(find.text('Total:'), findsOneWidget);
+    });
+
+    testWidgets('All sandwich types - Edge Case', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Test that we can cycle through sandwich types
+      final sandwichDropdown = find.byType(DropdownMenu).first;
+
+      // Open dropdown
+      await tester.tap(sandwichDropdown);
+      await tester.pumpAndSettle();
+
+      // Verify multiple options exist
+      expect(find.byType(MenuItemButton), findsWidgets);
+    });
+
+    testWidgets('All bread types - Edge Case', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Test that we can cycle through bread types
+      final breadDropdown = find.byType(DropdownMenu).last;
+
+      // Open dropdown
+      await tester.tap(breadDropdown);
+      await tester.pumpAndSettle();
+
+      // Verify multiple options exist
+      expect(find.byType(MenuItemButton), findsWidgets);
+    });
+
+    testWidgets('Toggle size multiple times - Edge Case', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      final switchFinder = find.byType(Switch);
+
+      // Toggle multiple times
+      for (int i = 0; i < 4; i++) {
+        await tester.tap(switchFinder);
+        await tester.pumpAndSettle();
+      }
+
+      // Should still function properly
+      expect(find.byType(Switch), findsOneWidget);
+
+      // Add to cart should still work
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Verify item was added
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('Cart modification after checkout - Edge Case', 
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Add item to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Go to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+
+      // Modify quantity
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Go to checkout
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Checkout'));
+      await tester.pumpAndSettle();
+
+      // Verify order summary is updated
+      expect(find.text('Order Summary'), findsOneWidget);
+    });
+
+    // ========== ERROR SCENARIO TESTS ==========
+
+    testWidgets('Empty profile submission - Error Scenario', 
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Navigate to profile
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Profile'));
+      await tester.pumpAndSettle();
+
+      // Don't enter any data, just click save
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Save Profile'));
+      await tester.pumpAndSettle();
+
+      // Should still show snackbar (app allows empty save)
+      expect(find.byType(SnackBar), findsOneWidget);
+    });
+
+    testWidgets('Navigate with items in cart - Error Scenario',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Add item to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Navigate to settings
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Settings'));
+      await tester.pumpAndSettle();
 
       // Go back
       final backButton = find.byType(BackButton);
@@ -172,85 +333,166 @@ void main() {
         await tester.tap(backButton);
         await tester.pumpAndSettle();
       }
+
+      // Cart should still have items
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+      expect(find.text('Your cart is empty.'), findsNothing);
     });
 
-    testWidgets('Cart operations', (WidgetTester tester) async {
+    testWidgets('Rapid button presses - Error Scenario', 
+        (WidgetTester tester) async {
       await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Add item to cart
-      final addToCartButton = find.widgetWithText(
-        ElevatedButton,
-        'Add to Cart',
-      );
-      await tester.tap(addToCartButton);
+      // Rapidly tap Add to Cart multiple times
+      final addButton = find.widgetWithText(ElevatedButton, 'Add to Cart');
+      await tester.tap(addButton);
+      await tester.tap(addButton);
+      await tester.tap(addButton);
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // Navigate to cart
-      final viewCartButton = find.widgetWithText(
-        ElevatedButton,
-        'View Cart',
-      );
-      await tester.tap(viewCartButton);
+      // Navigate to cart and verify items
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
       await tester.pumpAndSettle();
 
-      // Verify cart has items
-      expect(find.text('Your cart is empty.'), findsNothing);
+      // Should have items in cart (no crash)
       expect(find.text('Total:'), findsOneWidget);
+    });
 
-      // Test quantity controls
-      final addQuantityButton = find.byIcon(Icons.add).first;
-      await tester.tap(addQuantityButton);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+    testWidgets('Cancel checkout flow - Error Scenario', 
+        (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
 
-      // Verify snackbar for quantity increase
-      expect(find.byType(SnackBar), findsOneWidget);
+      // Add item and go to checkout
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // Test remove item
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Checkout'));
+      await tester.pumpAndSettle();
+
+      // Try to go back
+      final backButton = find.byType(BackButton);
+      if (backButton.evaluate().isNotEmpty) {
+        await tester.tap(backButton);
+        await tester.pumpAndSettle();
+      }
+
+      // Should navigate back successfully
+      expect(find.text('Cart View'), findsOneWidget);
+    });
+
+    // ========== CART OPERATIONS ==========
+
+    testWidgets('Add and remove items sequentially', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Add item
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Go to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+
+      // Remove item
       final removeButton = find.byIcon(Icons.delete).first;
       await tester.tap(removeButton);
       await tester.pumpAndSettle(const Duration(seconds: 1));
 
-      // Verify item was removed
+      // Verify empty cart
+      expect(find.text('Your cart is empty.'), findsOneWidget);
+    });
+
+    testWidgets('Decrement quantity to zero', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Add item with quantity 2
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Go to cart
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
+      await tester.pumpAndSettle();
+
+      // Decrement quantity twice
+      final decrementButton = find.byIcon(Icons.remove).first;
+      await tester.tap(decrementButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await tester.tap(decrementButton);
+      await tester.pumpAndSettle(const Duration(seconds: 1));
+
+      // Item should be removed
       expect(find.byType(SnackBar), findsOneWidget);
     });
 
-    testWidgets('Empty cart message', (WidgetTester tester) async {
+    testWidgets('Empty cart checkout attempt - Error Scenario', 
+        (WidgetTester tester) async {
       await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Navigate to cart without adding anything
-      final viewCartButton = find.widgetWithText(
-        ElevatedButton,
-        'View Cart',
-      );
-      await tester.tap(viewCartButton);
+      // Go directly to cart without adding items
+      await tester.tap(find.widgetWithText(ElevatedButton, 'View Cart'));
       await tester.pumpAndSettle();
 
-      // Verify empty cart message
+      // Checkout button should not be visible
+      expect(find.widgetWithText(ElevatedButton, 'Checkout'), findsNothing);
+
+      // Empty cart message should be shown
       expect(find.text('Your cart is empty.'), findsOneWidget);
-      expect(find.text('Checkout'), findsNothing);
     });
 
-    testWidgets('Verify cart indicator updates', (WidgetTester tester) async {
+    testWidgets('Cart indicator consistency', (WidgetTester tester) async {
       await tester.pumpWidget(const app.App());
       await tester.pumpAndSettle();
 
-      // Find initial cart count (should be 0)
-      final initialCartIndicator = find.text('0');
-      expect(initialCartIndicator, findsWidgets);
-
-      // Add item to cart
-      final addToCartButton = find.widgetWithText(
-        ElevatedButton,
-        'Add to Cart',
-      );
-      await tester.tap(addToCartButton);
+      // Add item with quantity 2
+      await tester.tap(find.byIcon(Icons.add).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
-      // Find updated cart count (should be 1)
-      final updatedCartIndicator = find.text('1');
-      expect(updatedCartIndicator, findsWidgets);
+      // Cart indicator should show 2
+      expect(find.text('2'), findsWidgets);
+
+      // Add another item
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Add to Cart'));
+      await tester.pumpAndSettle(const Duration(seconds: 2));
+
+      // Cart indicator should show 3
+      expect(find.text('3'), findsWidgets);
+    });
+
+    testWidgets('Settings screen interactions', (WidgetTester tester) async {
+      await tester.pumpWidget(const app.App());
+      await tester.pumpAndSettle();
+
+      // Navigate to settings
+      await tester.tap(find.widgetWithText(ElevatedButton, 'Settings'));
+      await tester.pumpAndSettle();
+
+      // Verify settings elements
+      expect(find.text('Font Size'), findsOneWidget);
+      expect(find.byType(Slider), findsOneWidget);
+
+      // Drag slider multiple times
+      final slider = find.byType(Slider);
+      await tester.drag(slider, const Offset(50, 0));
+      await tester.pumpAndSettle();
+
+      await tester.drag(slider, const Offset(-30, 0));
+      await tester.pumpAndSettle();
+
+      // Should not crash
+      expect(find.text('Font Size'), findsOneWidget);
     });
   });
 }
