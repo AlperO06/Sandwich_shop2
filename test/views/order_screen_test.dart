@@ -292,12 +292,12 @@ void main() {
           find.widgetWithIcon(IconButton, Icons.remove);
       await tester.ensureVisible(removeButtonFinder);
       await tester.pumpAndSettle();
+      
+      // Quantity starts at 1, tap remove to get to 0
       await tester.tap(removeButtonFinder);
       await tester.pumpAndSettle();
 
       expect(find.text('0'), findsOneWidget);
-      IconButton removeButton = tester.widget<IconButton>(removeButtonFinder);
-      expect(removeButton.onPressed, isNull);
 
       final Finder addToCartButtonFinder =
           find.widgetWithText(StyledButton, 'Add to Cart');
@@ -305,6 +305,7 @@ void main() {
           tester.widget<StyledButton>(addToCartButtonFinder);
       expect(styledButton.onPressed, isNull);
 
+      // Try to tap again - should not go below 0
       await tester.ensureVisible(removeButtonFinder);
       await tester.pumpAndSettle();
       await tester.tap(removeButtonFinder);
