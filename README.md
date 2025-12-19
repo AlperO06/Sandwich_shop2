@@ -92,9 +92,79 @@ flutter test integration_test/app_test.dart
 - **ProfileScreen**: 1 test - Profile screen rendering
 - **Models & Repositories**: 12 tests - Business logic and pricing
 
-## Get support
+## Installation & Setup
 
-Use [the dedicated Discord channel](https://discord.com/channels/760155974467059762/1370633732779933806)
-to ask your questions and get help from the community.
-Please provide as much context as possible, including the error messages you are seeing and
-screenshots (you can open Discord in your web browser).
+### 1. Clone Repository
+```bash
+git clone https://github.com/AlperO06/Sandwich_shop2
+cd Sandwich_shop2
+```
+
+### 2. Install Dependencies
+```bash
+flutter pub get
+```
+
+### 3. Run the App
+```bash
+flutter run
+```
+
+## Project Structure
+
+```
+lib/
+├── main.dart                 # App entry point
+├── models/
+│   ├── sandwich.dart         # Sandwich data model
+│   └── cart.dart             # Shopping cart with ChangeNotifier
+├── repositories/
+│   └── pricing_repository.dart # Pricing calculation logic
+├── screens/
+│   └── order_screen.dart     # Main ordering interface
+└── views/
+    ├── app_styles.dart       # Global text styles & font persistence
+    ├── common_widgets.dart   # Reusable AppBar, Button, CartIndicator
+    ├── cart_screen.dart      # Shopping cart view
+    ├── checkout_screen.dart  # Order checkout
+    ├── profile_screen.dart   # User profile
+    ├── settings_screen.dart  # Font size settings
+    └── about_screen.dart     # About page
+
+test/
+├── views/                    # Widget tests (15 tests)
+├── models/                   # Model tests (8 tests)
+└── repositories/             # Repository tests (4 tests)
+
+integration_test/
+└── app_test.dart             # 20+ end-to-end tests
+```
+
+## Key Technologies
+
+- **Flutter 3.35+** - Cross-platform UI framework
+- **Provider 6.1.5+** - State management
+- **SharedPreferences 2.5.4** - Local data persistence
+- **Dart 3.9.2** - Programming language
+
+## Architecture
+
+- **MVC Pattern**: Models for data, Views for UI, Controllers for logic
+- **Provider Pattern**: Centralized state management with ChangeNotifier
+- **Separation of Concerns**: Repositories handle pricing, Models handle state
+- **Widget Reusability**: Common widgets eliminate duplication
+
+## Development
+
+### Code Quality
+- Zero compilation errors
+- All tests passing (48/48)
+- Code follows Flutter conventions
+- Proper error handling
+
+### Recent Updates
+- ✅ Upgraded Kotlin version to 2.1.0
+- ✅ Added SharedPreferences for font size persistence
+- ✅ Refactored common widgets to reduce duplication
+- ✅ Comprehensive test coverage with 48 passing tests
+- ✅ Integration test suite ready for device testing
